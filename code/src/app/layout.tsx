@@ -1,17 +1,26 @@
-// code/src/app/layout.tsx
+import type { Metadata } from "next";
+import "@/app/globals.css";
+import Header from "@/components/header";
+import Providers from "@/components/providers/providers";
 
-import "./globals.css"
+export const metadata: Metadata = {
+    title: "NutriAI",
+    description: "AI-powered nutrition app that predicts appetite, energy, and weight trends while generating personalized diet plans.",
+};
 
 export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  return (
-    <html lang="en">
-      <body>
-        {children}
-      </body>
-    </html>
-  )
+    children,
+}: Readonly<{
+    children: React.ReactNode;
+}>) {
+    return (
+        <html lang="en" suppressHydrationWarning>
+            <body>
+                <Providers>
+                    <Header />
+                    {children}
+                </Providers>
+            </body>
+        </html>
+    );
 }
