@@ -12,19 +12,22 @@ export type Gender = typeof gender_enum[number];
 export const avg_sleep_enum = ["lt-5", "5-7", "7-9", "9-11", "gt-11"] as const;
 export type AvgSleep = typeof avg_sleep_enum[number];
 
-export const ProfileZodSchema = z.object({
+export const timezones = Intl.supportedValuesOf('timeZone');
 
-    name: z.string().optional(),
-    age: z.coerce.number().optional(),
-    height: z.coerce.number().optional(),
-    weight: z.coerce.number().optional(),
-    occupation: z.string().optional(),
-    fitnessLevel: z.string().optional(),
-    hobbies: z.string().optional(),
-    averageCalories: z.coerce.number().optional(),
-    currentEnergyLevel: z.coerce.number().optional(),
-    gender: z.string().optional(),
-    sleepHours: z.coerce.number().optional(),
+export const ProfileZodSchema = z.object({
+    dob: z.coerce.date("Date of birth is required"),
+    weight: z.string().min(1, "Weight is required").transform((v) => Number(v) || 0),
+    height: z.string().min(1, "Height is required").transform((v) => Number(v) || 0),
+    occupation: z.string().min(1, "Occupation is required").transform((s) => s?.trim()),
+    timezone: z.enum(timezones, "Timezone is required").transform((s) => s?.trim()),
+
+    fitness_level: z.coerce.number("Fitness is required").min(0).max(5),
+
+    avg_calories: z.enum(avg_calories_enum, "Average calories is required"),
+
+    current_energy: z.enum(current_energy_enum, "Current energy level is required"),
+    gender: z.enum(gender_enum, "Gender is required"),
+    avg_sleep: z.enum(avg_sleep_enum, "Average sleep is required"),
 
     // hobbies: z.array(z.string().transform((s) => s.trim())).optional(),//ignored for now
 });
@@ -36,6 +39,7 @@ export const BasicInfoSchema = ProfileZodSchema.pick({
     height: true,
     dob: true,
     occupation: true,
+    timezone: true,
 });
 
 export const gender_options = [

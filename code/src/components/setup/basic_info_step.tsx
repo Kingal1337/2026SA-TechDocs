@@ -87,6 +87,71 @@ export default function BasicInfoStep({
                         />
                     }
                 />
+                <form.AppField
+                    name="timezone"
+                    validators={{
+                        onBlur: BasicInfoSchema.shape.timezone
+                    }}
+                    children={(field) =>
+                        <field.SelectField
+                            label="Timezone"
+                            placeholder="Enter your timezone"
+                            options={[
+                                { label: "America/New_York", value: "America/New_York" },
+                                { label: "America/Chicago", value: "America/Chicago" },
+                                { label: "America/Denver", value: "America/Denver" },
+                                { label: "America/Los_Angeles", value: "America/Los_Angeles" },
+                                { label: "Europe/London", value: "Europe/London" },
+                                { label: "Asia/Tokyo", value: "Asia/Tokyo" },
+                            ]
+                            }
+                            required
+                        />
+                    }
+                />
+                <form.AppField
+                    name="allergies"
+                    // validators={{
+                    //     onBlur: BasicInfoSchema.shape.allergies
+                    // }}
+                    children={(field) =>
+                        <field.MultiSelectField
+                            label="Allergies"
+                            options={[
+                                { value: "peanuts", label: "Peanuts" },
+                                { value: "tree_nuts", label: "Tree Nuts" },
+                                { value: "dairy", label: "Dairy" },
+                                { value: "eggs", label: "Eggs" },
+                                { value: "wheat", label: "Wheat" },
+                                { value: "soy", label: "Soy" },
+                                { value: "fish", label: "Fish" },
+                                { value: "shellfish", label: "Shellfish" },
+                            ]}
+                            placeholder="Select your allergies..."
+                        />
+                    }
+                />
+                <form.AppField
+                    name="dietary"
+                    // validators={{
+                    //     onBlur: BasicInfoSchema.shape.allergies
+                    // }}
+                    children={(field) =>
+                        <field.MultiSelectField
+                            label="Dietary Preferences"
+                            options={[
+                                { value: "vegetarian", label: "Vegetarian" },
+                                { value: "vegan", label: "Vegan" },
+                                { value: "halal", label: "Halal" },
+                                { value: "kosher", label: "Kosher" },
+                                { value: "gluten_free", label: "Gluten-Free" },
+                                { value: "lactose_free", label: "Lactose-Free" },
+                                { value: "low_carb", label: "Low-Carb" },
+                            ]}
+                            placeholder="Select your dietary preferences..."
+                        />
+                    }
+                />
             </div>
         </SetupCard>
     );

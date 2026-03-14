@@ -15,7 +15,7 @@ type RouteLocals = {
 const validateDate = createDateValidator<LocalRouteParams, RouteLocals>("parsed_date");
 
 const createRoute = createTypedApiRoute<LocalRouteParams, unknown, RouteLocals>(
-	validateDate
+    validateDate
 );
 
 export const POST = createRoute(
@@ -38,13 +38,14 @@ export const POST = createRoute(
         const payload = { craving_event: event };
         const normalizedPayload = normalizeDocument(payload);
         return NextResponse.json(createSuccessResponse(normalizedPayload), { status: 201 });
-    }
+    },
+    { body_schema: CravingEventSchema }
 );
 
 export const GET = createRoute(
     async ({ user, locals }) => {
         const parsed_date = locals.parsed_date!;
-        
+
         const daily_log = await DailyLog.getDailyLogByDate(user._id, parsed_date);
         if (!daily_log) {
             return NextResponse.json(createErrorResponse("DAILY_LOG_NOT_FOUND", "No daily log found for the specified date"), { status: 404 });

@@ -82,7 +82,7 @@ async function generateRandomCheckin(date: Date) {
 }
 
 async function generateRandomCravingEvent(date: Date) {
-    const formatted_date = format(date, "yyyy-MM-dd", {in: tz('America/New_York'),})
+    const formatted_date = format(date, "yyyy-MM-dd", { in: tz('America/New_York'), })
     const randomFrom = (arr: readonly any[]) => arr[Math.floor(Math.random() * arr.length)];
     return {
         date: formatted_date,
@@ -102,7 +102,7 @@ async function generateRandomCravingEvent(date: Date) {
 }
 
 async function generateRandomHungerEvent(date: Date) {
-    const formatted_date = format(date, "yyyy-MM-dd", {in: tz('America/New_York'),})
+    const formatted_date = format(date, "yyyy-MM-dd", { in: tz('America/New_York'), })
     const randomFrom = (arr: readonly any[]) => arr[Math.floor(Math.random() * arr.length)];
 
     return {
@@ -121,7 +121,7 @@ async function generateRandomHungerEvent(date: Date) {
 }
 
 async function generateRandomDailyLog() {
-    const formatted_date = format(new Date(), "yyyy-MM-dd", {in: tz('America/New_York'),})
+    const formatted_date = format(new Date(), "yyyy-MM-dd", { in: tz('America/New_York'), })
     console.log(formatted_date);
     const randomFrom = (arr: readonly any[]) => arr[Math.floor(Math.random() * arr.length)];
     return {
@@ -169,8 +169,9 @@ export default function DailyLogPage() {
                         onCraving={async () => {
                             createCraving.mutate(await generateRandomCravingEvent(selected_date))
                         }}
-                        onHungry={async () => { 
-                            createHunger.mutate(await generateRandomHungerEvent(selected_date))}}
+                        onHungry={async () => {
+                            createHunger.mutate(await generateRandomHungerEvent(selected_date))
+                        }}
                         onCheckIn={async () => {
                             createDailyLog.mutate(await generateRandomDailyLog());
                         }}
