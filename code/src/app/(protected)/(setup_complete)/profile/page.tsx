@@ -114,7 +114,7 @@ export default function ProfilePage() {
             setErrorMessage("")
 
             // --- BMI REQUEST ---
-            const bmiResponse = await fetch("/api/nutriai-endpoints/bmi", {
+            const bmiResponse = await fetch("/api/nutriai/bmi", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -133,7 +133,7 @@ export default function ProfilePage() {
             }
 
             // --- ENERGY REQUEST ---
-            const energyResponse = await fetch("/api/nutriai-endpoints/energy-monitor", {
+            const energyResponse = await fetch("/api/nutriai/energy-monitor", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
