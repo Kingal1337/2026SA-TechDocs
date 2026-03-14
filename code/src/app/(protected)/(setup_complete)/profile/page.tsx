@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 export default function ProfilePage() {
     // profile form state
@@ -24,13 +24,68 @@ export default function ProfilePage() {
     const [loading, setLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState("")
 
+    // --------------------------------------------
+    // LOAD SAVED PROFILE WHEN PAGE OPENS
+    // --------------------------------------------
+    useEffect(() => {
+
+        async function loadProfile() {
+
+            try {
+
+                const response = await fetch("/api/profile")
+
+                const data = await response.json()
+                console.log("PROFILE DATA:", data)
+
+                if (response.ok && data.data?.user) {
+
+                    // map only valid form fields to avoid [object Object]
+                    setFormData({
+                        name: data.data.user.name ?? "",
+                        age: data.data.user.age ?? "",
+                        height: data.data.user.height ?? "",
+                        weight: data.data.user.weight ?? "",
+                        occupation: data.data.user.occupation ?? "",
+                        fitnessLevel: data.data.user.fitnessLevel ?? "Moderate",
+                        hobbies: data.data.user.hobbies ?? "",
+                        averageCalories: data.data.user.averageCalories ?? "",
+                        currentEnergyLevel: data.data.user.currentEnergyLevel ?? "5",
+                        gender: data.data.user.gender ?? "",
+                        sleepHours: data.data.user.sleepHours ?? ""
+                    })
+
+                    const loadedHeight = Number(data.data.user.height)
+                    const loadedWeight = Number(data.data.user.weight)
+
+                    if (loadedHeight && loadedWeight) {
+                        const bmiValue = (loadedWeight * 703) / (loadedHeight * loadedHeight)
+                        setBmi(bmiValue.toFixed(1))
+                    }
+
+                }
+
+            } catch (error) {
+
+                console.error("Failed to load profile")
+
+            }
+
+        }
+
+        loadProfile()
+
+    }, [])
+
     // calculate BMI locally when height or weight changes
     function calculateBMI(height: number, weight: number) {
+
         if (!height || !weight) return ""
 
         const bmiValue = (weight * 703) / (height * height)
 
         return bmiValue.toFixed(1)
+
     }
 
     // determine BMI category based on standard medical ranges
@@ -58,7 +113,8 @@ export default function ProfilePage() {
             setLoading(true)
             setErrorMessage("")
 
-            const response = await fetch("/api/nutriai/bmi", {
+            // --- BMI REQUEST ---
+            const bmiResponse = await fetch("/api/nutriai-endpoints/bmi", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -66,21 +122,40 @@ export default function ProfilePage() {
                 body: JSON.stringify({
                     height: formData.height,
                     weight: formData.weight,
+                }),
+            })
+
+            const bmiText = await bmiResponse.text()
+            const bmiData = bmiText ? JSON.parse(bmiText) : {}
+
+            if (!bmiResponse.ok) {
+                throw new Error(bmiData.message || "BMI calculation failed.")
+            }
+
+            // --- ENERGY REQUEST ---
+            const energyResponse = await fetch("/api/nutriai-endpoints/energy-monitor", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
                     sleepHours: formData.sleepHours,
                     currentEnergyLevel: formData.currentEnergyLevel,
                     fitnessLevel: formData.fitnessLevel,
                 }),
             })
 
-            const data = await response.json()
+            const energyText = await energyResponse.text()
+            const energyData = energyText ? JSON.parse(energyText) : {}
 
-            if (!response.ok) {
-                throw new Error(data.message || "Calculation failed.")
+            if (!energyResponse.ok) {
+                throw new Error(energyData.message || "Energy calculation failed.")
             }
 
             // update screen with API results
-            setBmi(String(data.bmi))
-            setEnergyScore(Number(data.energyScore))
+            setBmi(String(bmiData.bmi ?? ""))
+            setEnergyScore(Number(energyData.energyScore ?? 0))
+
         } catch (error) {
             setErrorMessage(
                 error instanceof Error ? error.message : "Something went wrong."
@@ -90,6 +165,50 @@ export default function ProfilePage() {
         }
     }
 
+    // save profile information to database
+    async function handleSaveProfile() {
+        try {
+
+            setLoading(true)
+            setErrorMessage("")
+
+            const response = await fetch("/api/profile", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    ...formData,
+                    age: Number(formData.age),
+                    height: Number(formData.height),
+                    weight: Number(formData.weight),
+                    averageCalories: Number(formData.averageCalories),
+                    currentEnergyLevel: Number(formData.currentEnergyLevel),
+                    sleepHours: Number(formData.sleepHours)
+                }),
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(data.error || "Profile save failed.")
+            }
+
+            alert("Profile saved successfully.")
+
+        } catch (error) {
+
+            setErrorMessage(
+                error instanceof Error ? error.message : "Failed to save profile."
+            )
+
+        } finally {
+
+            setLoading(false)
+            console.log("Saving profile:", formData)
+
+        }
+    }
     return (
         <div className="mx-auto max-w-4xl">
             {/* screen heading */}
@@ -232,9 +351,9 @@ export default function ProfilePage() {
                                 value={formData.gender}
                                 onChange={handleChange}
                             >
-                                <option value="">Select</option>
-                                <option value="M">Male</option>
-                                <option value="F">Female</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
                             </select>
                         </div>
 
@@ -258,6 +377,14 @@ export default function ProfilePage() {
                             disabled={loading}
                         >
                             {loading ? "Calculating..." : "Calculate BMI and Energy"}
+                        </button>
+
+                        <button
+                            className="rounded-lg border bg-green-600 px-4 py-2 text-white"
+                            type="button"
+                            onClick={handleSaveProfile}
+                        >
+                            Save Profile
                         </button>
 
                         {errorMessage ? (
